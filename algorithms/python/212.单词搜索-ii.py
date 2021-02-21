@@ -55,8 +55,70 @@
 #
 
 # @lc code=start
+class TrieNode:
+    def __init__(self):
+        self.children = collections.defaultdict(TrieNode)
+        self.isWord = False
+
+class Trie:
+    def __init__(self):
+        self.root = TrieNode()
+
+    def insert(self, word):
+        if not word:
+            return
+        
+        node = self.root
+        for char in word:
+            node = node.children[char]
+        node.isWord = True
+
+
+    def search(self, word):
+        if not word:
+            return False
+        
+        node = self.root
+        for char in word:
+            node = node.children.get(char)
+            if not node:
+                return False
+        return node.isWord
+
+
 class Solution:
+    def dfs(self, board, i, j, path, node, result):
+        if node.isWord:
+            node.isWord = False
+            result.append(path)
+        
+        row, col = len(board), len(board[0])
+
+        if i < 0 or i >= row or j < 0 or j >= col:
+            return
+        
+        tmp = board[i][j]
+        node = node.children.get(tmp)
+        if not node:
+            return
+        
+        board[i][j] = '#'
+        for x, y in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+            self.dfs(board, i + x, j + y, path + tmp, node, result)
+        board[i][j]= tmp
+
+
     def findWords(self, board: List[List[str]], words: List[str]) -> List[str]:
+        trie = Trie()
+        for word in words:
+            trie.insert(word)
+
+        # print(trie)
+        result = []
+        for i in range(len(board)):
+            for j in range(len(board[0])):
+                self.dfs(board, i, j, '', trie.root, result)
+        return result
           
 # @lc code=end
 
